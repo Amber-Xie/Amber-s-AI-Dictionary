@@ -9,6 +9,7 @@ import BookDetailPage from './pages/BookDetailPage'
 import WordDetailPage from './pages/WordDetailPage'
 import StudyPage from './pages/StudyPage'
 import SettingsPage from './pages/SettingsPage'
+import RecoveryPasswordGate from './components/RecoveryPasswordGate'
 
 function ProtectedRoutes() {
   const { session, loading } = useAuth()
@@ -47,6 +48,7 @@ export default function App() {
   return (
     <BrowserRouter basename={basename}>
       <AuthProvider>
+        <RecoveryPasswordGate />
         <div className="h-full bg-[#FDFCF8]">
           <ProtectedRoutes />
         </div>

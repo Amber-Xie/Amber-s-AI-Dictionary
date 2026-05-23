@@ -7,7 +7,10 @@ import {
   deleteWordEntry,
 } from '../lib/api'
 import LoadingSpinner from '../components/LoadingSpinner'
-import { IconChevronLeft, IconMore } from '../components/Icons'
+import { IconChevronLeft, IconChevronUp, IconChevronDown, IconMore } from '../components/Icons'
+
+const sortBtnClass =
+  'flex h-8 w-8 items-center justify-center rounded-lg border border-[#f0ebe3] bg-white text-[#7EB1B1] transition active:bg-[#fdfcf8] disabled:opacity-30 disabled:pointer-events-none'
 
 export default function BookDetailPage() {
   const { bookId } = useParams()
@@ -79,8 +82,11 @@ export default function BookDetailPage() {
     }
   }
 
+  const previewMeaning = (meaning) =>
+    meaning?.split('\n')[0]?.split('；')[0]?.split(';')[0]
+
   return (
-    <div className="page-wrap safe-top pb-8">
+    <section className="page-wrap safe-top pb-20">
       <button type="button" onClick={() => navigate('/books')} className="back-link">
         <IconChevronLeft /> 返回
       </button>
@@ -106,12 +112,12 @@ export default function BookDetailPage() {
           {entries.length === 0 ? '这本还没有单词' : '没有匹配的单词'}
         </p>
       ) : (
-        <ul className="space-y-0 divide-y divide-[#f0ebe3] rounded-2xl border border-[#f0ebe3] bg-white overflow-hidden">
+        <ul className="mb-4 space-y-0 divide-y divide-[#f0ebe3] rounded-2xl border border-[#f0ebe3] bg-white overflow-hidden">
           {filtered.map((entry) => {
             const index = entries.findIndex((e) => e.id === entry.id)
             return (
               <li key={entry.id} className="relative">
-                <div className="flex items-center">
+                <section className="flex items-center gap-1 pr-1">
                   <button
                     type="button"
                     onClick={() => navigate(`/word/${entry.id}`)}
@@ -119,42 +125,57 @@ export default function BookDetailPage() {
                   >
                     <span className="font-serif text-lg font-medium text-[#3d3d3d]">{entry.word}</span>
                     <span className="line-clamp-1 flex-1 text-right text-sm text-[#9CA3AF]">
-                      {entry.meaning?.split('；')[0]?.split(';')[0]}
+                      {previewMeaning(entry.meaning)}
                     </span>
                   </button>
+
+                  {canReorder && (
+                    <section className="flex shrink-0 flex-col gap-1 py-2">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          moveEntry(index, -1)
+                        }}
+                        disabled={index === 0}
+                        className={sortBtnClass}
+                        aria-label={`${entry.word} 上移`}
+                      >
+                        <IconChevronUp />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          moveEntry(index, 1)
+                        }}
+                        disabled={index === entries.length - 1}
+                        className={sortBtnClass}
+                        aria-label={`${entry.word} 下移`}
+                      >
+                        <IconChevronDown />
+                      </button>
+                    </section>
+                  )}
+
                   <button
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation()
                       setMenuId(menuId === entry.id ? null : entry.id)
                     }}
-                    className="shrink-0 px-3 py-4 text-[#9CA3AF]"
+                    className="shrink-0 px-2 py-4 text-[#9CA3AF]"
+                    aria-label="更多操作"
                   >
                     <IconMore />
                   </button>
-                </div>
+                </section>
 
                 {menuId === entry.id && (
-                  <div
+                  <section
                     className="absolute right-3 top-12 z-10 min-w-[7rem] rounded-xl border border-[#f0ebe3] bg-white py-1 shadow-lg"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <button
-                      type="button"
-                      onClick={() => moveEntry(index, -1)}
-                      disabled={!canReorder || index === 0}
-                      className="block w-full px-4 py-2 text-left text-sm disabled:opacity-30"
-                    >
-                      上移
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => moveEntry(index, 1)}
-                      disabled={!canReorder || index === entries.length - 1}
-                      className="block w-full px-4 py-2 text-left text-sm disabled:opacity-30"
-                    >
-                      下移
-                    </button>
                     <button
                       type="button"
                       onClick={() => handleDelete(entry)}
@@ -162,13 +183,13 @@ export default function BookDetailPage() {
                     >
                       删除单词
                     </button>
-                  </div>
+                  </section>
                 )}
               </li>
             )
           })}
         </ul>
       )}
-    </div>
+    </section>
   )
 }

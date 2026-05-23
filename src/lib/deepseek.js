@@ -2,13 +2,19 @@ const DEEPSEEK_API_URL = 'https://api.deepseek.com/chat/completions'
 
 const LOOKUP_PROMPT = (word) => `You are an expert English-Chinese dictionary assistant. For the English word "${word}", return ONLY valid JSON (no markdown, no code fences) in this exact format:
 {
-  "meaning": "中文释义，列出所有主要义项，用分号分隔",
+  "meaning": "按词性分类的中文释义。每个词性单独一行，行与行之间用换行符 \\n 分隔。每行格式为「词性缩写 + 空格 + 该词性下的中文义项」，同一词性内的多个义项用顿号或分号分隔。词性缩写使用常见形式，如 n. / v. / adj. / adv. / prep. / conj. / pron. / interj. 等。示例：adj. 复杂的，详尽的；精心制作的\\nv. 详细说明，详尽阐述；精心制作",
   "insight": "专业洞察（包含词根词源、近义词辨析、语境等），150-300字",
   "examples": [
     { "en": "英文例句1", "zh": "中文翻译1" },
     { "en": "英文例句2", "zh": "中文翻译2" }
   ]
-}`
+}
+
+Rules for "meaning":
+- MUST group definitions by part of speech, one part of speech per line.
+- MUST use \\n (newline) between lines, NOT semicolons alone to separate parts of speech.
+- Each line MUST start with a part-of-speech label followed by a space, then Chinese definitions.
+- Include all major senses for each part of speech.`
 
 /**
  * @param {string} apiKey

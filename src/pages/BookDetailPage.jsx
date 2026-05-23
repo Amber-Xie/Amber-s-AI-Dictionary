@@ -1,9 +1,13 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { fetchWordEntriesByBook } from '../lib/api'
+import {
+  fetchWordEntriesByBook,
+  reorderWordEntries,
+  deleteWordEntry,
+} from '../lib/api'
 import LoadingSpinner from '../components/LoadingSpinner'
-import { IconChevronLeft } from '../components/Icons'
+import { IconChevronLeft, IconMore } from '../components/Icons'
 
 export default function BookDetailPage() {
   const { bookId } = useParams()
@@ -12,13 +16,28 @@ export default function BookDetailPage() {
   const [entries, setEntries] = useState([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('')
+  const [menuId, setMenuId] = useState(null)
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    try {
+      const data = await fetchWordEntriesByBook(bookId, user.id)
+      setEntries(data)
+    } catch (e) {
+      alert(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }, [bookId, user.id])
+
+  useEffect(() => { load() }, [load])
 
   useEffect(() => {
-    fetchWordEntriesByBook(bookId, user.id)
-      .then(setEntries)
-      .catch((e) => alert(e.message))
-      .finally(() => setLoading(false))
-  }, [bookId, user.id])
+    if (!menuId) return
+    const close = () => setMenuId(null)
+    document.addEventListener('click', close)
+    return () => document.removeEventListener('click', close)
+  }, [menuId])
 
   const filtered = useMemo(() => {
     const q = filter.trim().toLowerCase()
@@ -29,6 +48,36 @@ export default function BookDetailPage() {
         e.meaning?.toLowerCase().includes(q)
     )
   }, [entries, filter])
+
+  const canReorder = !filter.trim()
+
+  const moveEntry = async (index, direction) => {
+    if (!canReorder) return
+    const newIndex = index + direction
+    if (newIndex < 0 || newIndex >= entries.length) return
+    const reordered = [...entries]
+    const [item] = reordered.splice(index, 1)
+    reordered.splice(newIndex, 0, item)
+    setEntries(reordered)
+    setMenuId(null)
+    try {
+      await reorderWordEntries(user.id, reordered.map((e) => e.id))
+    } catch (e) {
+      alert(e.message)
+      load()
+    }
+  }
+
+  const handleDelete = async (entry) => {
+    setMenuId(null)
+    if (!window.confirm(`确定删除单词「${entry.word}」吗？`)) return
+    try {
+      await deleteWordEntry(entry.id, user.id)
+      load()
+    } catch (e) {
+      alert(e.message)
+    }
+  }
 
   return (
     <div className="page-wrap safe-top pb-8">
@@ -46,6 +95,10 @@ export default function BookDetailPage() {
         className="input-field-plain mb-5"
       />
 
+      {filter.trim() && (
+        <p className="mb-4 text-xs text-[#9CA3AF]">搜索模式下无法调整排序，清空搜索后可排序</p>
+      )}
+
       {loading ? (
         <LoadingSpinner />
       ) : filtered.length === 0 ? (
@@ -54,20 +107,66 @@ export default function BookDetailPage() {
         </p>
       ) : (
         <ul className="space-y-0 divide-y divide-[#f0ebe3] rounded-2xl border border-[#f0ebe3] bg-white overflow-hidden">
-          {filtered.map((entry) => (
-            <li key={entry.id}>
-              <button
-                type="button"
-                onClick={() => navigate(`/word/${entry.id}`)}
-                className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left transition active:bg-[#fdfcf8]"
-              >
-                <span className="font-serif text-lg font-medium text-[#3d3d3d]">{entry.word}</span>
-                <span className="line-clamp-1 flex-1 text-right text-sm text-[#9CA3AF]">
-                  {entry.meaning?.split('；')[0]?.split(';')[0]}
-                </span>
-              </button>
-            </li>
-          ))}
+          {filtered.map((entry) => {
+            const index = entries.findIndex((e) => e.id === entry.id)
+            return (
+              <li key={entry.id} className="relative">
+                <div className="flex items-center">
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/word/${entry.id}`)}
+                    className="flex min-w-0 flex-1 items-center justify-between gap-3 px-4 py-4 text-left transition active:bg-[#fdfcf8]"
+                  >
+                    <span className="font-serif text-lg font-medium text-[#3d3d3d]">{entry.word}</span>
+                    <span className="line-clamp-1 flex-1 text-right text-sm text-[#9CA3AF]">
+                      {entry.meaning?.split('；')[0]?.split(';')[0]}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setMenuId(menuId === entry.id ? null : entry.id)
+                    }}
+                    className="shrink-0 px-3 py-4 text-[#9CA3AF]"
+                  >
+                    <IconMore />
+                  </button>
+                </div>
+
+                {menuId === entry.id && (
+                  <div
+                    className="absolute right-3 top-12 z-10 min-w-[7rem] rounded-xl border border-[#f0ebe3] bg-white py-1 shadow-lg"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => moveEntry(index, -1)}
+                      disabled={!canReorder || index === 0}
+                      className="block w-full px-4 py-2 text-left text-sm disabled:opacity-30"
+                    >
+                      上移
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => moveEntry(index, 1)}
+                      disabled={!canReorder || index === entries.length - 1}
+                      className="block w-full px-4 py-2 text-left text-sm disabled:opacity-30"
+                    >
+                      下移
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(entry)}
+                      className="block w-full px-4 py-2 text-left text-sm text-[#e57373]"
+                    >
+                      删除单词
+                    </button>
+                  </div>
+                )}
+              </li>
+            )
+          })}
         </ul>
       )}
     </div>

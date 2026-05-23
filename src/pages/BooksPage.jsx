@@ -6,6 +6,7 @@ import {
   updateWordBookName,
   reorderWordBooks,
   createWordBook,
+  deleteWordBook,
 } from '../lib/api'
 import LoadingSpinner from '../components/LoadingSpinner'
 import { IconFolder, IconMore } from '../components/Icons'
@@ -34,6 +35,13 @@ export default function BooksPage() {
   }, [user.id])
 
   useEffect(() => { load() }, [load])
+
+  useEffect(() => {
+    if (!menuId) return
+    const close = () => setMenuId(null)
+    document.addEventListener('click', close)
+    return () => document.removeEventListener('click', close)
+  }, [menuId])
 
   const moveBook = async (index, direction) => {
     const newIndex = index + direction
@@ -68,6 +76,20 @@ export default function BooksPage() {
       await createWordBook(user.id, newName.trim())
       setNewName('')
       setShowNew(false)
+      load()
+    } catch (e) {
+      alert(e.message)
+    }
+  }
+
+  const handleDelete = async (book) => {
+    setMenuId(null)
+    const label = book.word_count > 0
+      ? `确定删除「${book.name}」及其中的 ${book.word_count} 个单词吗？此操作不可恢复。`
+      : `确定删除「${book.name}」吗？`
+    if (!window.confirm(label)) return
+    try {
+      await deleteWordBook(book.id, user.id)
       load()
     } catch (e) {
       alert(e.message)
@@ -159,7 +181,10 @@ export default function BooksPage() {
               </div>
 
               {menuId === book.id && (
-                <div className="absolute right-4 top-14 z-10 rounded-xl border border-[#f0ebe3] bg-white py-1 shadow-lg">
+                <div
+                  className="absolute right-4 top-14 z-10 min-w-[8rem] rounded-xl border border-[#f0ebe3] bg-white py-1 shadow-lg"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <button
                     type="button"
                     onClick={() => moveBook(index, -1)}
@@ -182,6 +207,13 @@ export default function BooksPage() {
                     className="block w-full px-4 py-2 text-left text-sm"
                   >
                     重命名
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(book)}
+                    className="block w-full px-4 py-2 text-left text-sm text-[#e57373]"
+                  >
+                    删除单词本
                   </button>
                 </div>
               )}

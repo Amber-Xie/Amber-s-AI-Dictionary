@@ -25,13 +25,18 @@ export default function WordDetailPage() {
   const loadEntry = async () => {
     const data = await fetchWordEntry(wordId, user.id)
     setEntry(data)
-    setSelectedLinks(data.linked_entry_ids || [])
 
     const allInBook = await fetchWordEntriesByBook(data.book_id, user.id)
     setSiblings(allInBook.filter((e) => e.id !== data.id))
 
-    const ids = data.linked_entry_ids || []
-    setLinkedEntries(ids.length ? allInBook.filter((e) => ids.includes(e.id)) : [])
+    const outgoing = data.linked_entry_ids || []
+    const incomingIds = allInBook
+      .filter((e) => e.id !== data.id && (e.linked_entry_ids || []).includes(data.id))
+      .map((e) => e.id)
+    const allLinkedIds = [...new Set([...outgoing, ...incomingIds])]
+
+    setSelectedLinks(allLinkedIds)
+    setLinkedEntries(allInBook.filter((e) => allLinkedIds.includes(e.id)))
   }
 
   useEffect(() => {
@@ -48,10 +53,9 @@ export default function WordDetailPage() {
 
   const saveLinks = async () => {
     try {
-      const updated = await updateLinkedEntries(wordId, user.id, selectedLinks)
-      setEntry(updated)
+      await updateLinkedEntries(wordId, user.id, selectedLinks)
       setShowLinkPicker(false)
-      setLinkedEntries(siblings.filter((e) => selectedLinks.includes(e.id)))
+      await loadEntry()
     } catch (e) {
       alert(e.message)
     }

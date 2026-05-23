@@ -20,6 +20,7 @@ create table if not exists public.word_entries (
   examples jsonb default '[]'::jsonb,
   linked_entry_ids uuid[] default '{}',
   notes text,
+  sort_order integer not null default 0,
   created_at timestamptz not null default now()
 );
 
@@ -27,6 +28,11 @@ create table if not exists public.word_entries (
 create index if not exists idx_word_books_user on public.word_books(user_id);
 create index if not exists idx_word_entries_user on public.word_entries(user_id);
 create index if not exists idx_word_entries_book on public.word_entries(book_id);
+create index if not exists idx_word_entries_book_sort on public.word_entries(book_id, sort_order);
+
+-- 已有数据库执行此迁移（添加单词排序字段）：
+-- alter table public.word_entries add column if not exists sort_order integer not null default 0;
+-- create index if not exists idx_word_entries_book_sort on public.word_entries(book_id, sort_order);
 
 -- 启用 RLS
 alter table public.word_books enable row level security;

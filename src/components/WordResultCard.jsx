@@ -1,5 +1,23 @@
 import PronounceButton from './PronounceButton'
 
+function MeaningLines({ meaning, multiline = false }) {
+  const lines = multiline
+    ? (meaning || '').split('\n').map((line) => line.trim()).filter(Boolean)
+    : []
+
+  if (multiline && lines.length > 0) {
+    return (
+      <div className="space-y-2">
+        {lines.map((line, i) => (
+          <p key={i} className="leading-relaxed text-[#3d3d3d]">{line}</p>
+        ))}
+      </div>
+    )
+  }
+
+  return <p className="leading-relaxed text-[#3d3d3d]">{meaning}</p>
+}
+
 export default function WordResultCard({ word, result, compact = false }) {
   return (
     <div className={`space-y-3 ${compact ? '' : 'mt-2'}`}>
@@ -13,7 +31,7 @@ export default function WordResultCard({ word, result, compact = false }) {
         </div>
 
         <p className="section-label">中文释义</p>
-        <p className="leading-relaxed text-[#3d3d3d]">{result.meaning}</p>
+        <MeaningLines meaning={result.meaning} multiline={compact} />
       </article>
 
       {result.insight && (

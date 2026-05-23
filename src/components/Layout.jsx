@@ -16,7 +16,13 @@ export default function Layout() {
 
   return (
     <div className="flex h-full flex-col bg-[#FDFCF8]">
-      <main className={`flex-1 overflow-y-auto ${hideTabBar ? '' : 'pb-[72px]'}`}>
+      <main
+        className={`flex-1 overflow-y-auto ${
+          hideTabBar
+            ? 'pb-[calc(6rem+env(safe-area-inset-bottom,0px))]'
+            : 'pb-[72px]'
+        }`}
+      >
         <Outlet />
       </main>
 

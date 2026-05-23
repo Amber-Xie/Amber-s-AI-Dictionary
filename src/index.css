@@ -1,0 +1,403 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #fdfcf8;
+  --color-cream-dark: #f5f3eb;
+  --color-teal: #7eb1b1;
+  --color-teal-dark: #6a9fa0;
+  --color-teal-light: #e8f2f2;
+  --color-folder: #f5d76e;
+  --color-folder-bg: #fef9e7;
+  --color-text: #3d3d3d;
+  --color-text-muted: #9ca3af;
+  --color-border: #f0ebe3;
+  --color-card: #ffffff;
+  --color-danger: #e57373;
+  --font-serif: "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-sans: "DM Sans", system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-cream);
+  color: var(--color-text);
+  overscroll-behavior: none;
+}
+
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+/* ——— Layout ——— */
+.page-wrap {
+  margin-left: auto;
+  margin-right: auto;
+  min-height: 100%;
+  width: 100%;
+  max-width: 480px;
+  padding: 1.5rem 1.25rem;
+}
+
+.page-title {
+  font-family: var(--font-serif);
+  margin-bottom: 1.25rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #3d3d3d;
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0);
+}
+
+/* ——— Cards ——— */
+.card {
+  background: var(--color-card);
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid var(--color-border);
+}
+
+.card-flat {
+  background: var(--color-card);
+  border-radius: 16px;
+  border: 1px solid var(--color-border);
+}
+
+/* ——— Buttons ——— */
+.btn-primary {
+  background-color: var(--color-teal);
+  color: white;
+  border-radius: 25px;
+  padding: 12px 24px;
+  border: none;
+  font-weight: 500;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+  width: 100%;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--color-teal-dark);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: white;
+  color: var(--color-text);
+  border-radius: 25px;
+  padding: 12px 24px;
+  border: 1px solid var(--color-border);
+  font-weight: 500;
+  font-size: 15px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-teal);
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.btn-danger-text {
+  color: var(--color-danger);
+  background: none;
+  border: none;
+  font-size: 15px;
+  cursor: pointer;
+  width: 100%;
+  padding: 12px;
+}
+
+/* ——— Inputs ——— */
+.input-field {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid var(--color-border);
+  background: white;
+  padding: 12px 14px 12px 44px;
+  font-size: 15px;
+  outline: none;
+  color: var(--color-text);
+  transition: border-color 0.2s;
+}
+
+.input-field:focus {
+  border-color: var(--color-teal);
+}
+
+.input-field-plain {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid var(--color-border);
+  background: white;
+  padding: 12px 14px;
+  font-size: 15px;
+  outline: none;
+}
+
+.input-field-plain:focus {
+  border-color: var(--color-teal);
+}
+
+.input-wrap {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+/* ——— Section labels ——— */
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+}
+
+/* ——— Segmented control ——— */
+.segmented {
+  display: flex;
+  background: var(--color-cream-dark);
+  border-radius: 14px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.segmented-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 11px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  background: transparent;
+  color: var(--color-text-muted);
+  transition: all 0.2s;
+}
+
+.segmented-btn.active {
+  background: white;
+  color: var(--color-text);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+/* ——— Search bar combo ——— */
+.search-combo {
+  display: flex;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: 25px;
+  overflow: hidden;
+  padding: 4px 4px 4px 18px;
+}
+
+.search-combo input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 15px;
+  background: transparent;
+  min-width: 0;
+}
+
+.search-combo button {
+  background: var(--color-teal);
+  color: white;
+  border: none;
+  border-radius: 22px;
+  padding: 10px 22px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.search-combo button:disabled {
+  opacity: 0.5;
+}
+
+/* ——— Progress ——— */
+.progress-track {
+  height: 4px;
+  background: var(--color-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--color-teal);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* ——— Flip card ——— */
+.flip-card {
+  perspective: 1000px;
+  width: 100%;
+}
+
+.flip-card-inner {
+  transition: transform 0.5s;
+  transform-style: preserve-3d;
+  position: relative;
+  min-height: 280px;
+}
+
+.flip-card-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: 20px;
+  border: 1px solid var(--color-border);
+  background: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
+  background: var(--color-teal-light);
+}
+
+/* ——— Folder card ——— */
+.folder-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 16px 18px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.folder-card:active {
+  background: var(--color-cream);
+}
+
+.folder-icon {
+  width: 44px;
+  height: 44px;
+  background: var(--color-folder-bg);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ——— Settings group ——— */
+.settings-group {
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.settings-row:last-child {
+  border-bottom: none;
+}
+
+/* ——— Study mode cards ——— */
+.mode-card {
+  flex: 1;
+  padding: 20px 12px;
+  border-radius: 16px;
+  border: 2px solid var(--color-border);
+  background: white;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mode-card.selected {
+  border-color: var(--color-teal);
+  background: var(--color-teal-light);
+}
+
+/* ——— Back link ——— */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-teal);
+  font-size: 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 16px;
+}
+
+/* ——— Alert ——— */
+.alert-error {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.alert-success {
+  background: var(--color-teal-light);
+  color: var(--color-teal-dark);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 14px;
+  margin-bottom: 16px;
+}

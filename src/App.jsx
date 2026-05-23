@@ -43,10 +43,8 @@ function ProtectedRoutes() {
 }
 
 export default function App() {
-  const basename = import.meta.env.BASE_URL.replace(/\/$/, '') || undefined
-
   return (
-    <HashRouter basename={basename}>
+    <HashRouter>
       <AuthProvider>
         <RecoveryPasswordGate />
         <div className="h-full bg-[#FDFCF8]">

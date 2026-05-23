@@ -336,20 +336,11 @@ export async function deleteWordEntry(entryId, userId) {
 }
 
 export async function fetchEntriesForStudy(bookId, userId) {
-  const baseQuery = () =>
-    supabase
-      .from('word_entries')
-      .select('id, word, meaning')
-      .eq('book_id', bookId)
-      .eq('user_id', userId)
-
-  let { data, error } = await baseQuery()
-    .order('sort_order', { ascending: true })
-    .order('created_at', { ascending: true })
-
-  if (missingSortOrderColumn(error)) {
-    ({ data, error } = await baseQuery().order('created_at', { ascending: true }))
-  }
+  const { data, error } = await supabase
+    .from('word_entries')
+    .select('id, word, meaning')
+    .eq('book_id', bookId)
+    .eq('user_id', userId)
 
   if (error) throw error
   return data || []

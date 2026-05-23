@@ -9,20 +9,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet" />
     <title>英语词典</title>
-    <script>
-      ;(function () {
-        if (window.location.hash) return
-        var base = '%BASE_URL%'
-        if (!base || base === '/') return
-        var root = base.endsWith('/') ? base.slice(0, -1) : base
-        var path = window.location.pathname
-        if (path.indexOf(root) !== 0) return
-        var rest = path.slice(root.length)
-        if (rest && rest !== '/' && rest.indexOf('.') === -1) {
-          window.location.replace(root + '/#' + rest)
-        }
-      })()
-    </script>
   </head>
   <body>
     <div id="root"></div>

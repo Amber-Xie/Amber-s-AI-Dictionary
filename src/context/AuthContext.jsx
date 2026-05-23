@@ -53,11 +53,12 @@ export function AuthProvider({ children }) {
   }, [])
 
   const resetPassword = useCallback(async (email) => {
-    const redirectTo = `${window.location.origin}${import.meta.env.BASE_URL}`
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo,
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+      // 将你的线上地址传进来，这会覆盖默认的 Site URL
+      redirectTo: 'https://Amber-Xie.github.io/Amber-s-AI-Dictionary/',
     })
     if (error) throw error
+    return data
   }, [])
 
   const updateApiKey = useCallback(async (apiKey) => {

@@ -9,9 +9,15 @@ const MODES = {
   ZH_TO_EN: 'zh_en',
 }
 
+const ORDER_MODES = {
+  SEQUENTIAL: 'sequential',
+  RANDOM: 'random',
+}
+
 const SWIPE_THRESHOLD = 50
 
-function shuffle(arr) {
+/** Fisher–Yates shuffle */
+function fisherYatesShuffle(arr) {
   const a = [...arr]
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
@@ -24,6 +30,7 @@ export default function StudyPage() {
   const { user } = useAuth()
   const [books, setBooks] = useState([])
   const [bookId, setBookId] = useState('')
+  const [orderMode, setOrderMode] = useState(ORDER_MODES.RANDOM)
   const [mode, setMode] = useState(MODES.EN_TO_ZH)
   const [cards, setCards] = useState([])
   const [index, setIndex] = useState(0)
@@ -93,7 +100,10 @@ export default function StudyPage() {
         alert('该单词本没有单词')
         return
       }
-      setCards(shuffle(entries))
+      const deck = orderMode === ORDER_MODES.RANDOM
+        ? fisherYatesShuffle(entries)
+        : entries
+      setCards(deck)
       setIndex(0)
       setFlipped(false)
       setStarted(true)
@@ -135,6 +145,29 @@ export default function StudyPage() {
             </option>
           ))}
         </select>
+
+        <p className="section-label">学习顺序</p>
+        <section className="mb-6 flex gap-3">
+          {[
+            { id: ORDER_MODES.SEQUENTIAL, label: '顺序学习' },
+            { id: ORDER_MODES.RANDOM, label: '随机学习' },
+          ].map((option) => (
+            <label
+              key={option.id}
+              className={`mode-card cursor-pointer ${orderMode === option.id ? 'selected' : ''}`}
+            >
+              <input
+                type="radio"
+                name="orderMode"
+                value={option.id}
+                checked={orderMode === option.id}
+                onChange={() => setOrderMode(option.id)}
+                className="sr-only"
+              />
+              <p className="text-sm font-medium text-[#3d3d3d]">{option.label}</p>
+            </label>
+          ))}
+        </section>
 
         <p className="section-label">学习模式</p>
         <section className="mb-8 flex gap-3">

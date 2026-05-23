@@ -81,7 +81,7 @@ export default function RecoveryPasswordGate() {
       const { error: updateError } = await supabase.auth.updateUser({ password })
       if (updateError) throw updateError
 
-      const homeUrl = `${window.location.origin}${import.meta.env.BASE_URL}`
+      const homeUrl = `${window.location.origin}${import.meta.env.BASE_URL}#/find`
       window.location.href = homeUrl
     } catch (err) {
       setError(err.message || '密码更新失败，请重试')

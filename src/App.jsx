@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import Layout from './components/Layout'
 import LoadingSpinner from './components/LoadingSpinner'
@@ -46,13 +46,13 @@ export default function App() {
   const basename = import.meta.env.BASE_URL.replace(/\/$/, '') || undefined
 
   return (
-    <BrowserRouter basename={basename}>
+    <HashRouter basename={basename}>
       <AuthProvider>
         <RecoveryPasswordGate />
         <div className="h-full bg-[#FDFCF8]">
           <ProtectedRoutes />
         </div>
       </AuthProvider>
-    </BrowserRouter>
+    </HashRouter>
   )
 }

@@ -10,7 +10,7 @@ import LoadingSpinner from '../components/LoadingSpinner'
 import { IconChevronLeft, IconChevronUp, IconChevronDown } from '../components/Icons'
 
 const sortBtnClass =
-  'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#f0ebe3] bg-[#fdfcf8] text-[#7EB1B1] transition active:bg-[#e8f2f2] disabled:opacity-30 disabled:pointer-events-none'
+  'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#f0ebe3] bg-[#fdfcf8] text-[#7EB1B1] transition active:bg-[#e8f2f2] disabled:opacity-30 disabled:pointer-events-none'
 
 export default function BookDetailPage() {
   const { bookId } = useParams()
@@ -110,7 +110,7 @@ export default function BookDetailPage() {
                 key={entry.id}
                 className="rounded-2xl border border-[#f0ebe3] bg-white"
               >
-                <section className="flex items-stretch gap-2 p-3">
+                <section className="flex items-center gap-2 p-3">
                   <button
                     type="button"
                     onClick={() => navigate(`/word/${entry.id}`)}
@@ -122,9 +122,9 @@ export default function BookDetailPage() {
                     </p>
                   </button>
 
-                  <section className="flex shrink-0 flex-col items-center justify-center gap-1.5 border-l border-[#f0ebe3] pl-2">
+                  <section className="flex shrink-0 items-center gap-1 border-l border-[#f0ebe3] pl-2">
                     {canReorder && (
-                      <section className="flex flex-col gap-1">
+                      <>
                         <button
                           type="button"
                           onClick={() => moveEntry(index, -1)}
@@ -143,7 +143,7 @@ export default function BookDetailPage() {
                         >
                           <IconChevronDown />
                         </button>
-                      </section>
+                      </>
                     )}
                     <button
                       type="button"

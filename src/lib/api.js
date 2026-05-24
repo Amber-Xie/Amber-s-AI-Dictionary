@@ -354,3 +354,29 @@ export async function fetchEntriesForStudy(bookId, userId) {
   if (error) throw error
   return data || []
 }
+
+export async function fetchEntriesForExport(userId) {
+  const { data, error } = await supabase
+    .from('word_entries')
+    .select('word, meaning, sort_order, created_at, word_books(name, sort_order)')
+    .eq('user_id', userId)
+
+  if (error) throw error
+
+  const entries = (data || []).map((row) => ({
+    bookName: row.word_books?.name ?? '',
+    bookSortOrder: row.word_books?.sort_order ?? 0,
+    word: row.word,
+    meaning: row.meaning,
+    sortOrder: row.sort_order ?? 0,
+    createdAt: row.created_at,
+  }))
+
+  entries.sort((a, b) => {
+    if (a.bookSortOrder !== b.bookSortOrder) return a.bookSortOrder - b.bookSortOrder
+    if (a.sortOrder !== b.sortOrder) return a.sortOrder - b.sortOrder
+    return new Date(a.createdAt) - new Date(b.createdAt)
+  })
+
+  return entries
+}

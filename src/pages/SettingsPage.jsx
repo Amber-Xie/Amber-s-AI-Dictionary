@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { getDeepSeekApiKey } from '../lib/api'
+import { exportAllWords } from '../lib/exportWords'
 
 function maskKey(key) {
   if (!key || key.length < 8) return key ? '••••••••' : ''
@@ -16,6 +17,7 @@ export default function SettingsPage() {
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [exporting, setExporting] = useState(false)
 
   const handleSaveKey = async () => {
     setError('')
@@ -56,6 +58,20 @@ export default function SettingsPage() {
       await signOut()
     } catch (e) {
       alert(e.message)
+    }
+  }
+
+  const handleExport = async () => {
+    setError('')
+    setMessage('')
+    setExporting(true)
+    try {
+      await exportAllWords(user.id)
+      setMessage('导出成功')
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setExporting(false)
     }
   }
 
@@ -125,6 +141,26 @@ export default function SettingsPage() {
               </div>
             </>
           )}
+        </div>
+      </div>
+
+      <p className="section-label">数据管理</p>
+      <div className="settings-group mb-4">
+        <div className="settings-row flex-col !items-stretch gap-3">
+          <div>
+            <p className="font-medium text-[#3d3d3d]">导出全部单词</p>
+            <p className="mt-0.5 text-xs text-[#9CA3AF]">
+              导出为 Excel（.xlsx），包含单词本、单词及中文释义摘要
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleExport}
+            disabled={exporting}
+            className="btn-secondary !py-2.5 !text-sm"
+          >
+            {exporting ? '导出中...' : '导出 Excel'}
+          </button>
         </div>
       </div>
 

@@ -12,7 +12,7 @@ import SettingsPage from './pages/SettingsPage'
 import RecoveryPasswordGate from './components/RecoveryPasswordGate'
 
 function ProtectedRoutes() {
-  const { session, loading } = useAuth()
+  const { session, loading, recoveryMode } = useAuth()
 
   if (loading) {
     return (
@@ -20,6 +20,10 @@ function ProtectedRoutes() {
         <LoadingSpinner />
       </div>
     )
+  }
+
+  if (recoveryMode) {
+    return null
   }
 
   if (!session) {

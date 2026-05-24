@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { IconLock, IconLockLarge } from './Icons'
 import LoadingSpinner from './LoadingSpinner'
@@ -18,26 +19,30 @@ function urlHasRecoveryType() {
 
 export default function RecoveryPasswordGate() {
   const location = useLocation()
-  const [active, setActive] = useState(false)
+  const { recoveryMode, enableRecoveryMode, clearRecoveryMode } = useAuth()
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [sessionReady, setSessionReady] = useState(false)
 
-  const syncRecoveryState = useCallback(() => {
-    setActive(urlHasRecoveryType())
-  }, [])
+  const active = recoveryMode || urlHasRecoveryType()
+
+  const syncRecoveryFromUrl = useCallback(() => {
+    if (urlHasRecoveryType()) {
+      enableRecoveryMode()
+    }
+  }, [enableRecoveryMode])
 
   useEffect(() => {
-    syncRecoveryState()
-    window.addEventListener('hashchange', syncRecoveryState)
-    window.addEventListener('popstate', syncRecoveryState)
+    syncRecoveryFromUrl()
+    window.addEventListener('hashchange', syncRecoveryFromUrl)
+    window.addEventListener('popstate', syncRecoveryFromUrl)
     return () => {
-      window.removeEventListener('hashchange', syncRecoveryState)
-      window.removeEventListener('popstate', syncRecoveryState)
+      window.removeEventListener('hashchange', syncRecoveryFromUrl)
+      window.removeEventListener('popstate', syncRecoveryFromUrl)
     }
-  }, [syncRecoveryState, location.pathname, location.search, location.hash])
+  }, [syncRecoveryFromUrl, location.pathname, location.search, location.hash])
 
   useEffect(() => {
     if (!active) {
@@ -81,8 +86,8 @@ export default function RecoveryPasswordGate() {
       const { error: updateError } = await supabase.auth.updateUser({ password })
       if (updateError) throw updateError
 
-      const homeUrl = `${window.location.origin}${import.meta.env.BASE_URL}`
-      window.location.href = homeUrl
+      clearRecoveryMode()
+      window.location.href = `${window.location.origin}${import.meta.env.BASE_URL}`
     } catch (err) {
       setError(err.message || '密码更新失败，请重试')
     } finally {

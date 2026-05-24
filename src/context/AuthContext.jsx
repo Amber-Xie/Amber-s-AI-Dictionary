@@ -3,28 +3,52 @@ import { supabase } from '../lib/supabase'
 
 const AuthContext = createContext(null)
 
+const RECOVERY_STORAGE_KEY = 'password_recovery'
+
+function getAppRedirectUrl() {
+  return `${window.location.origin}${import.meta.env.BASE_URL}`
+}
+
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null)
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [recoveryMode, setRecoveryMode] = useState(
+    () => sessionStorage.getItem(RECOVERY_STORAGE_KEY) === '1',
+  )
+
+  const enableRecoveryMode = useCallback(() => {
+    sessionStorage.setItem(RECOVERY_STORAGE_KEY, '1')
+    setRecoveryMode(true)
+  }, [])
+
+  const clearRecoveryMode = useCallback(() => {
+    sessionStorage.removeItem(RECOVERY_STORAGE_KEY)
+    setRecoveryMode(false)
+  }, [])
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session: s } }) => {
       setSession(s)
       setUser(s?.user ?? null)
+      if (!s) clearRecoveryMode()
       setLoading(false)
     })
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, s) => {
+    } = supabase.auth.onAuthStateChange((event, s) => {
       setSession(s)
       setUser(s?.user ?? null)
+      if (event === 'PASSWORD_RECOVERY') {
+        enableRecoveryMode()
+      }
+      if (!s) clearRecoveryMode()
       setLoading(false)
     })
 
     return () => subscription.unsubscribe()
-  }, [])
+  }, [enableRecoveryMode, clearRecoveryMode])
 
   const signUp = useCallback(async (email, password, displayName) => {
     const { data, error } = await supabase.auth.signUp({
@@ -48,14 +72,14 @@ export function AuthProvider({ children }) {
   }, [])
 
   const signOut = useCallback(async () => {
+    clearRecoveryMode()
     const { error } = await supabase.auth.signOut()
     if (error) throw error
-  }, [])
+  }, [clearRecoveryMode])
 
   const resetPassword = useCallback(async (email) => {
     const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-      // 将你的线上地址传进来，这会覆盖默认的 Site URL
-      redirectTo: 'https://Amber-Xie.github.io/Amber-s-AI-Dictionary/',
+      redirectTo: getAppRedirectUrl(),
     })
     if (error) throw error
     return data
@@ -74,6 +98,9 @@ export function AuthProvider({ children }) {
     session,
     user,
     loading,
+    recoveryMode,
+    enableRecoveryMode,
+    clearRecoveryMode,
     signUp,
     signIn,
     signOut,

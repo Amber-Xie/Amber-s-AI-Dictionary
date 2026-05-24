@@ -9,6 +9,11 @@ const MODES = {
   ZH_TO_EN: 'zh_en',
 }
 
+const ORDER_MODES = {
+  SEQUENTIAL: 'sequential',
+  RANDOM: 'random',
+}
+
 const SWIPE_THRESHOLD = 50
 
 function shuffle(arr) {
@@ -25,6 +30,7 @@ export default function StudyPage() {
   const [books, setBooks] = useState([])
   const [bookId, setBookId] = useState('')
   const [mode, setMode] = useState(MODES.EN_TO_ZH)
+  const [orderMode, setOrderMode] = useState(ORDER_MODES.RANDOM)
   const [cards, setCards] = useState([])
   const [index, setIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
@@ -93,7 +99,7 @@ export default function StudyPage() {
         alert('该单词本没有单词')
         return
       }
-      setCards(shuffle(entries))
+      setCards(orderMode === ORDER_MODES.RANDOM ? shuffle(entries) : entries)
       setIndex(0)
       setFlipped(false)
       setStarted(true)
@@ -135,6 +141,26 @@ export default function StudyPage() {
             </option>
           ))}
         </select>
+
+        <p className="section-label">学习顺序</p>
+        <section className="mb-6 flex gap-6">
+          {[
+            { id: ORDER_MODES.SEQUENTIAL, label: '顺序学习' },
+            { id: ORDER_MODES.RANDOM, label: '随机学习' },
+          ].map((o) => (
+            <label key={o.id} className="flex cursor-pointer items-center gap-2 text-sm text-[#3d3d3d]">
+              <input
+                type="radio"
+                name="orderMode"
+                value={o.id}
+                checked={orderMode === o.id}
+                onChange={() => setOrderMode(o.id)}
+                className="accent-[#7EB1B1]"
+              />
+              {o.label}
+            </label>
+          ))}
+        </section>
 
         <p className="section-label">学习模式</p>
         <section className="mb-8 flex gap-3">
